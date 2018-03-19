@@ -1,0 +1,11 @@
+# [[file:~/Workspace/Programming/neighbors/neighbors.note::4c096517-45bc-48c5-8c2a-29d80a5d6f88][4c096517-45bc-48c5-8c2a-29d80a5d6f88]]
+[package]
+name = "neighbors"
+version = "0.0.1"
+authors = ["Wenping Guo <ybyygu@gmail.com>"]
+
+[dependencies]
+approx = "*"
+cgmath = "*"
+timeit = "*"
+# 4c096517-45bc-48c5-8c2a-29d80a5d6f88 ends here
