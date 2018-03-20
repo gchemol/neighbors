@@ -5,4 +5,6 @@ extern crate timeit;
 
 #[macro_use]
 extern crate approx;
+
+mod periodic;
 // 56b7353e-897b-4eb6-b8a7-89104f8b085f ends here
