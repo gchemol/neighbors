@@ -8,4 +8,5 @@ authors = ["Wenping Guo <ybyygu@gmail.com>"]
 approx = "*"
 cgmath = "*"
 timeit = "*"
+octree = { git = "https://github.com/ybyygu/rust-octree.git" }
 # 4c096517-45bc-48c5-8c2a-29d80a5d6f88 ends here

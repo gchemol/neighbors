@@ -6,7 +6,7 @@ use cgmath::prelude::*;
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct UnitCell {
     /// Unit cell matrix
-    matrix: Matrix3<f64>,
+    pub matrix: Matrix3<f64>,
 
     /// Inverse of the unit cell matrix
     inverse: Matrix3<f64>,
@@ -23,9 +23,8 @@ pub struct UnitCell {
 }
 
 
-
 impl UnitCell {
-    fn new(tvs: [[f64; 3]; 3]) -> Self {
+    pub fn new(tvs: [[f64; 3]; 3]) -> Self {
         let va = Vector3::from(tvs[0]);
         let vb = Vector3::from(tvs[1]);
         let vc = Vector3::from(tvs[2]);
@@ -37,7 +36,7 @@ impl UnitCell {
         let wc = volume / (va.magnitude()*vb.magnitude());
 
         UnitCell {
-            matrix: Matrix3::zero(),
+            matrix: Matrix3::from_cols(va, vb, vc),
             inverse: Matrix3::zero(),
 
             lengths: [0.0; 3],
@@ -47,7 +46,7 @@ impl UnitCell {
         }
     }
 
-    fn to_frac(&self, coordinates: Vec<Vector3<f64>>) -> Vec<Vector3<f64>>
+    pub fn to_frac(&self, coordinates: Vec<Vector3<f64>>) -> Vec<Vector3<f64>>
     {
         let mut fractional = Vec::new();
         let inv = self.matrix.transpose().invert().unwrap();
@@ -59,7 +58,7 @@ impl UnitCell {
     }
 
     /// minimal images for neighborhood search
-    fn relevant_images(&self, radius: f64) -> Vec<Vector3<f64>> {
+    pub fn relevant_images(&self, radius: f64) -> Vec<Vector3<f64>> {
         let ns = self.n_min_images(radius);
         let na = ns[0] as isize;
         let nb = ns[1] as isize;
