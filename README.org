@@ -2,7 +2,7 @@
 #+SETUPFILE: ~/Notes/common.org
 
 * Benchmarks
-| rust-neighbors   | v0.0.1   | 1.3 ms  |
+| rust-neighbors   | v0.0.2   | 1.3 ms  |
 | ASE NeighborList | v3.15.0 | 13.7 ms |
 | ASE NeighborList | v3.11.0  | 251 ms  |
 
