@@ -8,6 +8,32 @@ use octree::Octree;
 use cgmath::{Vector3, Matrix};
 use cgmath::prelude::*;
 
+/// search neighbors for aperiodic system
+pub fn neighbors_for_aperiodic
+    (
+        positions: &Vec<[f64; 3]>,
+        cutoff: f64
+    )
+    -> HashMap<usize, Vec<(usize, f64, Vector3<f64>)>>
+{
+    let tree = Octree::new(&positions);
+
+    let mut kneighbors = HashMap::new();
+    // run queries over all relevant images
+    for (current, &p) in positions.iter().enumerate() {
+        let mut neighbors = Vec::new();
+        let nps = tree.search(p, cutoff);
+        for &(index, distance) in nps.iter() {
+            if index != current {
+                neighbors.push((index, distance, Vector3::new(0.0, 0.0, 0.0)));
+            }
+        }
+        kneighbors.insert(current, neighbors);
+    }
+
+    kneighbors
+}
+
 /// search neighbors for periodic system
 pub fn neighbors_for_periodic
     (

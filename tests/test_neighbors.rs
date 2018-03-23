@@ -306,13 +306,24 @@ fn test_neighbors() {
     );
 
     let mut nh = Neighborhood::new(&positions);
-    nh.cell = Some(cell);
+    // aperiodic
     nh.build(1.7);
-    let ns = nh.neighbors(155).unwrap();
+    let ns = nh.neighbors(0).unwrap();
+    assert_eq!(1, ns.len());
+    assert_eq!(52, ns[0].index);
+
+    // periodic
+    nh.set_cell(cell);
+    nh.build(1.7);
+    let mut ns = nh.neighbors(0).unwrap();
+    ns.sort_by_key(|v| v.index);
     assert_eq!(2, ns.len());
-    let mut x: Vec<_> = ns.iter().map(|v|v.index).collect();
-    x.sort();
-    assert_eq!(x, [13, 178]);
+    assert_eq!(3, ns[0].index);
+    assert!(ns[0].image.is_some());
+    let image = ns[0].image.unwrap();
+    assert_eq!(0.0, image[0]);
+    assert_eq!(0.0, image[1]);
+    assert_eq!(1.0, image[2]);
 
     timeit!({
         nh.build(1.7);

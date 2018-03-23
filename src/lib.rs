@@ -17,7 +17,6 @@ pub type Points = Vec<Point>;
 mod neighbors;
 mod periodic;
 
-
 #[derive(Clone, Debug, Default)]
 pub struct Neighbor {
     /// Particle index in particle list
@@ -43,12 +42,13 @@ pub struct Neighborhood<'a> {
 
     particles: &'a Points,
     tree: Octree<'a>,
-    kneighbors: HashMap<usize, Vec<(usize, f64, Vector3<f64>)>>,
+    kneighbors : HashMap<usize, Vec<(usize, f64, Vector3<f64>)>>,
 }
 
-use neighbors::neighbors_for_periodic;
+use neighbors::{neighbors_for_periodic, neighbors_for_aperiodic};
 
 impl<'a> Neighborhood<'a> {
+    /// Construct neighborhood structure from points in 3D space
     pub fn new(particles: &'a Points) -> Self {
         Neighborhood{
             particles: particles,
@@ -58,9 +58,18 @@ impl<'a> Neighborhood<'a> {
         }
     }
 
+    /// Set unit cell, applying periodic boundary conditions
+    pub fn set_cell(&mut self, cell: UnitCell) {
+        self.cell = Some(cell);
+    }
+
     /// Build the neighbor list
     pub fn build(&mut self, cutoff: f64) -> Result<(), &'static str> {
-       self.kneighbors = neighbors_for_periodic(self.particles, self.cell.unwrap(), cutoff);
+        if self.cell.is_some() {
+            self.kneighbors  = neighbors_for_periodic(self.particles, self.cell.unwrap(), cutoff);
+        } else {
+            self.kneighbors = neighbors_for_aperiodic(self.particles, cutoff);
+        }
 
         Ok(())
     }
