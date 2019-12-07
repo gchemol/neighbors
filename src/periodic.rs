@@ -1,6 +1,8 @@
-// [[file:~/Workspace/Programming/neighbors/neighbors.note::76f249a1-99bf-4677-b204-7c87ccf9f8e3][76f249a1-99bf-4677-b204-7c87ccf9f8e3]]
-use cgmath::{Vector3, Matrix3, Point3, Deg};
+// src
+
+// [[file:~/Workspace/Programming/neighbors/neighbors.note::*src][src:1]]
 use cgmath::prelude::*;
+use cgmath::{Deg, Matrix3, Point3, Vector3};
 
 /// An UnitCell defines how periodic boundary conditions are applied
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -22,7 +24,6 @@ pub struct UnitCell {
     widths: [f64; 3],
 }
 
-
 impl UnitCell {
     pub fn new(tvs: [[f64; 3]; 3]) -> Self {
         let va = Vector3::from(tvs[0]);
@@ -31,9 +32,9 @@ impl UnitCell {
 
         let volume = va.dot(vb.cross(vc));
 
-        let wa = volume / (vb.magnitude()*vc.magnitude());
-        let wb = volume / (vc.magnitude()*va.magnitude());
-        let wc = volume / (va.magnitude()*vb.magnitude());
+        let wa = volume / (vb.magnitude() * vc.magnitude());
+        let wb = volume / (vc.magnitude() * va.magnitude());
+        let wc = volume / (va.magnitude() * vb.magnitude());
 
         UnitCell {
             matrix: Matrix3::from_cols(va, vb, vc),
@@ -46,12 +47,11 @@ impl UnitCell {
         }
     }
 
-    pub fn to_frac(&self, coordinates: Vec<Vector3<f64>>) -> Vec<Vector3<f64>>
-    {
+    pub fn to_frac(&self, coordinates: Vec<Vector3<f64>>) -> Vec<Vector3<f64>> {
         let mut fractional = Vec::new();
         let inv = self.matrix.transpose().invert().unwrap();
         for v in coordinates {
-            fractional.push(inv*v);
+            fractional.push(inv * v);
         }
 
         fractional
@@ -65,9 +65,9 @@ impl UnitCell {
         let nc = ns[2] as isize;
 
         let mut images = vec![];
-        for i in (-na)..(na+1) {
-            for j in (-nb)..(nb+1) {
-                for k in (-nc)..(nc+1) {
+        for i in (-na)..(na + 1) {
+            for j in (-nb)..(nb + 1) {
+                for k in (-nc)..(nc + 1) {
                     let v = Vector3::from([i as f64, j as f64, k as f64]);
                     images.push(v);
                 }
@@ -78,7 +78,7 @@ impl UnitCell {
     }
 
     /// Return the minimal number of images for neighborhood search on each cell direction
-    fn n_min_images(&self, radius: f64) -> [usize; 3]{
+    fn n_min_images(&self, radius: f64) -> [usize; 3] {
         let mut ns = [0; 3];
 
         for (i, &w) in self.widths.iter().enumerate() {
@@ -90,18 +90,20 @@ impl UnitCell {
     }
 }
 
-fn cart_to_frac(matrix: Matrix3<f64>,
-                coordinates: Vec<Vector3<f64>>) -> Vec<Vector3<f64>>
-{
+fn cart_to_frac(matrix: Matrix3<f64>, coordinates: Vec<Vector3<f64>>) -> Vec<Vector3<f64>> {
     let mut fractional = Vec::new();
     let inv = matrix.transpose().invert().unwrap();
     for v in coordinates {
-        fractional.push(inv*v);
+        fractional.push(inv * v);
     }
 
     fractional
 }
-// 76f249a1-99bf-4677-b204-7c87ccf9f8e3 ends here
+// src:1 ends here
+
+
+
+// #+name: 9e56d65c-e674-41e3-96a3-aec630d7f374
 
 // [[file:~/Workspace/Programming/neighbors/neighbors.note::9e56d65c-e674-41e3-96a3-aec630d7f374][9e56d65c-e674-41e3-96a3-aec630d7f374]]
 #[test]
@@ -151,6 +153,11 @@ fn test_cell() {
     assert_eq!(expected[1][2], images[1][2]);
 }
 // 9e56d65c-e674-41e3-96a3-aec630d7f374 ends here
+
+
+
+// 最近邻镜像原子
+// #+name: e51000e4-e9a4-41b0-87e7-e8a832bb1ea4
 
 // [[file:~/Workspace/Programming/neighbors/neighbors.note::e51000e4-e9a4-41b0-87e7-e8a832bb1ea4][e51000e4-e9a4-41b0-87e7-e8a832bb1ea4]]
 use std::f64;
@@ -205,6 +212,10 @@ fn test_get_nearest_image() {
 }
 // e51000e4-e9a4-41b0-87e7-e8a832bb1ea4 ends here
 
+
+
+// #+name: a2204d33-0e41-4f99-9667-3f825b7039aa
+
 // [[file:~/Workspace/Programming/neighbors/neighbors.note::a2204d33-0e41-4f99-9667-3f825b7039aa][a2204d33-0e41-4f99-9667-3f825b7039aa]]
 fn cell_vectors_to_parameters(matrix: Matrix3<f64>) -> (f64, f64, f64, f64, f64, f64) {
     let a = matrix.x.magnitude();
@@ -218,6 +229,10 @@ fn cell_vectors_to_parameters(matrix: Matrix3<f64>) -> (f64, f64, f64, f64, f64,
     (a, b, c, alpha.0, beta.0, gamma.0)
 }
 // a2204d33-0e41-4f99-9667-3f825b7039aa ends here
+
+
+
+// #+name: 46bbc67d-7915-4e1b-b582-75bd706bdaa6
 
 // [[file:~/Workspace/Programming/neighbors/neighbors.note::46bbc67d-7915-4e1b-b582-75bd706bdaa6][46bbc67d-7915-4e1b-b582-75bd706bdaa6]]
 #[test]

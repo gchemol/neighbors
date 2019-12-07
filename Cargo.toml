@@ -1,12 +1,15 @@
-# [[file:~/Workspace/Programming/neighbors/neighbors.note::4c096517-45bc-48c5-8c2a-29d80a5d6f88][4c096517-45bc-48c5-8c2a-29d80a5d6f88]]
+# cargo
+
+# [[file:~/Workspace/Programming/neighbors/neighbors.note::*cargo][cargo:1]]
 [package]
 name = "neighbors"
-version = "0.0.2"
+version = "0.0.3"
 authors = ["Wenping Guo <ybyygu@gmail.com>"]
+edition = "2018"
 
 [dependencies]
 approx = "*"
 cgmath = "*"
 timeit = "*"
 octree = { git = "https://github.com/ybyygu/rust-octree.git" }
-# 4c096517-45bc-48c5-8c2a-29d80a5d6f88 ends here
+# cargo:1 ends here

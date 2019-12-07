@@ -1,21 +1,23 @@
-// [[file:~/Workspace/Programming/neighbors/neighbors.note::921fcb19-eb9a-4b00-9c8b-4f3af18a8f58][921fcb19-eb9a-4b00-9c8b-4f3af18a8f58]]
-use std::ops::Mul;
-use std::collections::HashMap;
+// neighbors.rs
+// :PROPERTIES:
+// :header-args: :tangle src/neighbors.rs
+// :END:
 
-use periodic::UnitCell;
+// [[file:~/Workspace/Programming/neighbors/neighbors.note::*neighbors.rs][neighbors.rs:1]]
+use std::collections::HashMap;
+use std::ops::Mul;
+
+use crate::periodic::UnitCell;
 use octree::Octree;
 
-use cgmath::{Vector3, Matrix};
 use cgmath::prelude::*;
+use cgmath::{Matrix, Vector3};
 
 /// search neighbors for aperiodic system
-pub fn neighbors_for_aperiodic
-    (
-        positions: &Vec<[f64; 3]>,
-        cutoff: f64
-    )
-    -> HashMap<usize, Vec<(usize, f64, Vector3<f64>)>>
-{
+pub fn neighbors_for_aperiodic(
+    positions: &Vec<[f64; 3]>,
+    cutoff: f64,
+) -> HashMap<usize, Vec<(usize, f64, Vector3<f64>)>> {
     let tree = Octree::new(&positions);
 
     let mut kneighbors = HashMap::new();
@@ -35,13 +37,11 @@ pub fn neighbors_for_aperiodic
 }
 
 /// search neighbors for periodic system
-pub fn neighbors_for_periodic
-    (
-        positions: &Vec<[f64; 3]>,
-        cell: UnitCell, cutoff: f64
-    )
-    -> HashMap<usize, Vec<(usize, f64, Vector3<f64>)>>
-{
+pub fn neighbors_for_periodic(
+    positions: &Vec<[f64; 3]>,
+    cell: UnitCell,
+    cutoff: f64,
+) -> HashMap<usize, Vec<(usize, f64, Vector3<f64>)>> {
     let images = cell.relevant_images(cutoff);
 
     let tree = Octree::new(&positions);
@@ -58,7 +58,7 @@ pub fn neighbors_for_periodic
             let nps = tree.search(*vquery.as_ref(), cutoff);
             for &(index, distance) in nps.iter() {
                 if index != current {
-                    neighbors.push((index, distance, -1.*image))
+                    neighbors.push((index, distance, -1. * image))
                 }
             }
         }
@@ -67,4 +67,4 @@ pub fn neighbors_for_periodic
 
     kneighbors
 }
-// 921fcb19-eb9a-4b00-9c8b-4f3af18a8f58 ends here
+// neighbors.rs:1 ends here
