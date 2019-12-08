@@ -4,20 +4,13 @@
 // :END:
 
 // [[file:~/Workspace/Programming/neighbors/neighbors.note::*lib.rs][lib.rs:1]]
-extern crate cgmath;
-#[macro_use]
-extern crate timeit;
-extern crate octree;
-#[macro_use]
-extern crate approx;
-
 use cgmath::prelude::*;
 use cgmath::{Matrix, Vector3};
 use octree::Octree;
 use std::collections::HashMap;
 
-pub type Point = [f64; 3];
-pub type Points = Vec<Point>;
+type Point = [f64; 3];
+type Points = Vec<Point>;
 
 mod neighbors;
 mod periodic;

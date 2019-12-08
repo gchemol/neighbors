@@ -8,8 +8,11 @@ authors = ["Wenping Guo <ybyygu@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-approx = "*"
 cgmath = "*"
+#octree = { git = "https://github.com/ybyygu/rust-octree.git" }
+octree = { path = "../octree" }
+
+[dev-dependencies]
 timeit = "*"
-octree = { git = "https://github.com/ybyygu/rust-octree.git" }
+approx = "*"
 # cargo:1 ends here
