@@ -1,9 +1,18 @@
-// lib.rs
-// :PROPERTIES:
-// :header-args: :tangle src/lib.rs
-// :END:
+// import
 
-// [[file:~/Workspace/Programming/neighbors/neighbors.note::*lib.rs][lib.rs:1]]
+// [[file:~/Workspace/Programming/gchemol-rs/neighbors/neighbors.note::*import][import:1]]
+
+// import:1 ends here
+
+// mods
+
+// [[file:~/Workspace/Programming/gchemol-rs/neighbors/neighbors.note::*mods][mods:1]]
+mod neighborhood;
+// mods:1 ends here
+
+// adhoc
+
+// [[file:~/Workspace/Programming/gchemol-rs/neighbors/neighbors.note::*adhoc][adhoc:1]]
 use cgmath::prelude::*;
 use cgmath::{Matrix, Vector3};
 use octree::Octree;
@@ -39,7 +48,7 @@ pub struct Neighborhood<'a> {
     pub cell: Option<UnitCell>,
 
     particles: &'a Points,
-    tree: Octree<'a>,
+    tree: Octree,
     kneighbors: HashMap<usize, Vec<(usize, f64, Vector3<f64>)>>,
 }
 
@@ -91,4 +100,4 @@ impl<'a> Neighborhood<'a> {
         Ok(ns)
     }
 }
-// lib.rs:1 ends here
+// adhoc:1 ends here

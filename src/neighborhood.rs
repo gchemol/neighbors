@@ -1,17 +1,103 @@
+// imports
+
+// [[file:~/Workspace/Programming/gchemol-rs/neighbors/neighbors.note::*imports][imports:1]]
+use guts::prelude::*;
+use indexmap::IndexMap;
+use vecfx::Vector3f;
+// imports:1 ends here
+
+// pub
+
+// [[file:~/Workspace/Programming/gchemol-rs/neighbors/neighbors.note::*pub][pub:1]]
+type Point = [f64; 3];
+
+/// Helper struct for neighbors query result.
+#[derive(Debug, Clone)]
+pub struct Neighbor {
+    /// The node connected to the host point.
+    pub node: usize,
+    /// The distance to the host point.
+    pub distance: f64,
+    /// Scaled displacment vector relative to origin cell if PBC enabled.
+    pub image: Option<Vector3f>,
+}
+
+/// Neighborhood is a neighboring nodes detector, given a cutoff distance.
+#[derive(Debug, Clone)]
+pub struct Neighborhood {
+    points: IndexMap<usize, Point>,
+    tree: Option<Octree>,
+}
+// pub:1 ends here
+
+// core
+
+// [[file:~/Workspace/Programming/gchemol-rs/neighbors/neighbors.note::*core][core:1]]
+use octree::Octree;
+
+impl Neighborhood {
+    /// Constructs a neighborhood detector using the given `cutoff` distance.
+    pub fn new() -> Self {
+        Self {
+            points: IndexMap::new(),
+            tree: None,
+        }
+    }
+
+    /// Automatically build and update Neighborhood with `points`.
+    ///
+    /// Parameters
+    /// ----------
+    /// - points: A list of 3D point to build Neighborhood for.
+    pub fn update(&mut self, points: &[Point]) {
+        for (i, &p) in points.iter().enumerate() {
+            self.points.insert(i, p);
+        }
+        let points: Vec<_> = self.points.values().cloned().collect();
+        let mut tree = Octree::new(&points);
+        let bucket_size = 10;
+        tree.build(bucket_size);
+        self.tree = Some(tree);
+    }
+
+    /// Return a list of the nodes connected to the node n.
+    ///
+    /// Parameters
+    /// ----------
+    /// - n: the key of host node for searching neighbors
+    /// - radius: cutoff radius distance
+    pub fn neighbors(&self, n: &usize, radius: f64) -> Vec<Neighbor> {
+        // the index of host node `n` in point list.
+        let (n_index, _, pt) = self.points.get_full(n).expect("invalid key");
+
+        self.tree
+            .as_ref()
+            .expect("octree not ready")
+            .search(*pt, radius)
+            .into_iter()
+            .filter_map(|(index, distance)| {
+                // excluding this node `n` from neighbor list.
+                if index == n_index {
+                    None
+                } else {
+                    let (&node, _) = self.points.get_index(index).expect("invalid index");
+                    let neighbor = Neighbor {
+                        node,
+                        distance,
+                        image: None,
+                    };
+
+                    Some(neighbor)
+                }
+            })
+            .collect()
+    }
+}
+// core:1 ends here
+
 // tests
-// :PROPERTIES:
-// :header-args: :tangle tests/test_neighbors.rs
-// :END:
 
 // [[file:~/Workspace/Programming/gchemol-rs/neighbors/neighbors.note::*tests][tests:1]]
-extern crate neighbors;
-
-#[macro_use]
-extern crate timeit;
-
-use neighbors::Neighborhood;
-use neighbors::UnitCell;
-
 #[test]
 fn test_neighbors() {
     let points = vec![
@@ -305,30 +391,13 @@ fn test_neighbors() {
         [9.12800000e+00, 1.64005058e+01, 5.65650000e+00],
     ];
 
-    let cell = UnitCell::new([[18.256, 0., 0.], [0., 20.534, 0.], [0., 0., 15.084]]);
+    let mut nh = Neighborhood::new();
+    nh.update(&points);
+    let nns = nh.neighbors(&0, 1.7);
+    dbg!(nns);
 
-    let mut nh = Neighborhood::new(&points);
-    // aperiodic
-    nh.build(1.7);
-    let ns = nh.neighbors(0).unwrap();
-    assert_eq!(1, ns.len());
-    assert_eq!(52, ns[0].index);
-
-    // periodic
-    nh.set_cell(cell);
-    nh.build(1.7);
-    let mut ns = nh.neighbors(0).unwrap();
-    ns.sort_by_key(|v| v.index);
-    assert_eq!(2, ns.len());
-    assert_eq!(3, ns[0].index);
-    assert!(ns[0].image.is_some());
-    let image = ns[0].image.unwrap();
-    assert_eq!(0.0, image[0]);
-    assert_eq!(0.0, image[1]);
-    assert_eq!(1.0, image[2]);
-
-    timeit!({
-        nh.build(1.7);
-    });
+    // let ns = nh.neighbors(0).unwrap();
+    // assert_eq!(1, ns.len());
+    // assert_eq!(52, ns[0].index);
 }
 // tests:1 ends here

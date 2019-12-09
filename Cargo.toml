@@ -1,6 +1,6 @@
 # cargo
 
-# [[file:~/Workspace/Programming/neighbors/neighbors.note::*cargo][cargo:1]]
+# [[file:~/Workspace/Programming/gchemol-rs/neighbors/neighbors.note::*cargo][cargo:1]]
 [package]
 name = "neighbors"
 version = "0.0.3"
@@ -11,6 +11,9 @@ edition = "2018"
 cgmath = "*"
 #octree = { git = "https://github.com/ybyygu/rust-octree.git" }
 octree = { path = "../octree" }
+vecfx = { path = "../vecfx", features = ["nalgebra"] }
+guts = { git = "https://github.com/ybyygu/guts.git" }
+indexmap = { version = "1" }
 
 [dev-dependencies]
 timeit = "*"
