@@ -1,254 +1,118 @@
-// src
+// import
 
-// [[file:~/Workspace/Programming/neighbors/neighbors.note::*src][src:1]]
-use cgmath::prelude::*;
-use cgmath::{Deg, Matrix3, Point3, Vector3};
+// [[file:~/Workspace/Programming/gchemol-rs/neighbors/neighbors.note::*import][import:1]]
+use gchemol_lattice::Lattice;
 
-/// An UnitCell defines how periodic boundary conditions are applied
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub struct UnitCell {
-    /// Unit cell matrix
-    pub matrix: Matrix3<f64>,
+use crate::base::*;
+// import:1 ends here
 
-    /// Inverse of the unit cell matrix
-    inverse: Matrix3<f64>,
+// pub
 
-    lengths: [f64; 3],
-    angles: [f64; 3],
-
-    /// Volume of the unit cell.
-    volume: f64,
-
-    /// The perpendicular widths of the unit cell on each direction,
-    /// i.e. the distance between opposite faces of the unit cell
-    widths: [f64; 3],
-}
-
-impl UnitCell {
-    pub fn new(tvs: [[f64; 3]; 3]) -> Self {
-        let va = Vector3::from(tvs[0]);
-        let vb = Vector3::from(tvs[1]);
-        let vc = Vector3::from(tvs[2]);
-
-        let volume = va.dot(vb.cross(vc));
-
-        let wa = volume / (vb.magnitude() * vc.magnitude());
-        let wb = volume / (vc.magnitude() * va.magnitude());
-        let wc = volume / (va.magnitude() * vb.magnitude());
-
-        UnitCell {
-            matrix: Matrix3::from_cols(va, vb, vc),
-            inverse: Matrix3::zero(),
-
-            lengths: [0.0; 3],
-            angles: [0.0; 3],
-            volume: volume,
-            widths: [wa, wb, wc],
-        }
+// [[file:~/Workspace/Programming/gchemol-rs/neighbors/neighbors.note::*pub][pub:1]]
+impl Neighborhood {
+    /// Set lattice for applying periodic boundary conditions
+    pub fn set_lattice(&mut self, mat: [[f64; 3]; 3]) {
+        let lat = Lattice::new(mat);
+        self.lattice = Some(lat);
     }
 
-    pub fn to_frac(&self, coordinates: Vec<Vector3<f64>>) -> Vec<Vector3<f64>> {
-        let mut fractional = Vec::new();
-        let inv = self.matrix.transpose().invert().unwrap();
-        for v in coordinates {
-            fractional.push(inv * v);
-        }
+    /// Search neighbors for periodic system.
+    pub(crate) fn neighbors_periodic(
+        &self,
+        n: &usize,
+        cutoff: f64,
+        mut lattice: Lattice,
+    ) -> Vec<Neighbor> {
+        // the index of host node `n` in point list.
+        let (n_index, _, pt) = self.points.get_full(n).expect("invalid key");
 
-        fractional
-    }
+        let tree = self.tree.as_ref().expect("octree not ready.");
+        let images = lattice.relevant_images(cutoff);
 
-    /// minimal images for neighborhood search
-    pub fn relevant_images(&self, radius: f64) -> Vec<Vector3<f64>> {
-        let ns = self.n_min_images(radius);
-        let na = ns[0] as isize;
-        let nb = ns[1] as isize;
-        let nc = ns[2] as isize;
+        // to avoid octree building for each image we mirror the query points
+        // and then mirror back
+        let [x0, y0, z0] = pt;
+        let pt_images = images.into_iter().map(|image| {
+            let [dx, dy, dz] = lattice.to_cart([image[0], image[1], image[2]]);
+            let new_pt = [x0 + dx, y0 + dy, z0 + dz];
+            (new_pt, -image)
+        });
 
-        let mut images = vec![];
-        for i in (-na)..(na + 1) {
-            for j in (-nb)..(nb + 1) {
-                for k in (-nc)..(nc + 1) {
-                    let v = Vector3::from([i as f64, j as f64, k as f64]);
-                    images.push(v);
-                }
-            }
-        }
-
-        images
-    }
-
-    /// Return the minimal number of images for neighborhood search on each cell direction
-    fn n_min_images(&self, radius: f64) -> [usize; 3] {
-        let mut ns = [0; 3];
-
-        for (i, &w) in self.widths.iter().enumerate() {
-            let n = (radius / w).ceil();
-            ns[i] = n as usize;
-        }
-
-        ns
+        // run queries over all relevant images
+        pt_images
+            .flat_map(|(pt, image)| {
+                tree.search(pt, cutoff)
+                    .into_iter()
+                    .filter_map(move |(index, distance)| {
+                        if distance > 0.0 {
+                            let (&node, _) = self.points.get_index(index).expect("invalid index");
+                            let nbr = Neighbor {
+                                node,
+                                distance,
+                                image: Some(image),
+                            };
+                            Some(nbr)
+                        } else {
+                            None
+                        }
+                    })
+            })
+            .collect()
     }
 }
+// pub:1 ends here
 
-fn cart_to_frac(matrix: Matrix3<f64>, coordinates: Vec<Vector3<f64>>) -> Vec<Vector3<f64>> {
-    let mut fractional = Vec::new();
-    let inv = matrix.transpose().invert().unwrap();
-    for v in coordinates {
-        fractional.push(inv * v);
-    }
+// test
 
-    fractional
-}
-// src:1 ends here
-
-// [[file:~/Workspace/Programming/neighbors/neighbors.note::*src][src:2]]
+// [[file:~/Workspace/Programming/gchemol-rs/neighbors/neighbors.note::*test][test:1]]
 #[test]
-fn test_cell() {
-    use approx::*;
+fn test_periodic_neighbors() {
+    use vecfx::*;
 
-    let cell = UnitCell::new([[18.256, 0., 0.], [0., 20.534, 0.], [0., 0., 15.084]]);
+    let particles = [[ 0.60421912,  4.2840792 ,  0.67433509],
+                     [-0.69258171,  3.9731936 ,  3.49208748],
+                     [ 0.32811792,  4.34729737,  6.48343793],
+                     [ 4.88477572,  1.81537674,  6.26972558],
+                     [ 6.14499816,  1.48505734,  3.37312786],
+                     [ 5.12754047,  1.85762907,  0.43572421],
+                     [ 2.09507387,  3.66872721,  0.39353504],
+                     [ 0.5848138 ,  0.91854645,  0.28564143],
+                     [ 0.33364169,  4.10698461,  2.26790994],
+                     [-1.14582521,  2.41879964,  3.57784907],
+                     [ 0.06571752,  4.4286596 ,  4.80486228],
+                     [ 3.78132323,  0.96146537,  0.19503846],
+                     [ 3.29078661,  1.21859679,  6.60654731],
+                     [ 4.93953611,  3.49170736,  6.71444093],
+                     [ 5.15070623,  1.63464631,  4.60290757],
+                     [ 6.60903043,  4.89706872,  3.2209702 ],
+                     [ 5.36681478,  1.95057166,  2.05143108],
+                     [ 1.73241622,  3.38087446,  6.78291188]];
+    
+    let cell = [[ 8.60700000e+00,  0.00000000e+00,  0.00000000e+00],
+                [ 8.64636107e-04,  4.95399992e+00,  0.00000000e+00],
+                [-3.14318359e+00,  1.38078488e-02,  6.91625732e+00]];
+    let mut nh = Neighborhood::new();
+    nh.update(&particles);
+    nh.set_lattice(cell);
+    let cutoff = 1.8;
+    let mut neighbors = nh.neighbors(&1, cutoff);
+    // sort by node index
+    neighbors.sort_by_key(|n| n.node);
+    assert_eq!(4, neighbors.len());
+    let nodes: Vec<_> = neighbors.iter().map(|n| n.node).collect();
+    assert_eq!(nodes, vec![7, 8, 9, 14]);
 
-    assert_eq!([1, 1, 1], cell.n_min_images(9.));
-    assert_eq!([2, 1, 2], cell.n_min_images(19.));
-    assert_eq!([2, 1, 2], cell.n_min_images(20.));
-    assert_eq!([2, 2, 2], cell.n_min_images(20.6));
-
-    let expected = [
-        Vector3::new(-1.0, -1.0, -1.0),
-        Vector3::new(-1.0, -1.0, 0.0),
-        Vector3::new(-1.0, -1.0, 1.0),
-        Vector3::new(-1.0, 0.0, -1.0),
-        Vector3::new(-1.0, 0.0, 0.0),
-        Vector3::new(-1.0, 0.0, 1.0),
-        Vector3::new(-1.0, 1.0, -1.0),
-        Vector3::new(-1.0, 1.0, 0.0),
-        Vector3::new(-1.0, 1.0, 1.0),
-        Vector3::new(0.0, -1.0, -1.0),
-        Vector3::new(0.0, -1.0, 0.0),
-        Vector3::new(0.0, -1.0, 1.0),
-        Vector3::new(0.0, 0.0, -1.0),
-        Vector3::new(0.0, 0.0, 0.0),
-        Vector3::new(0.0, 0.0, 1.0),
-        Vector3::new(0.0, 1.0, -1.0),
-        Vector3::new(0.0, 1.0, 0.0),
-        Vector3::new(0.0, 1.0, 1.0),
-        Vector3::new(1.0, -1.0, -1.0),
-        Vector3::new(1.0, -1.0, 0.0),
-        Vector3::new(1.0, -1.0, 1.0),
-        Vector3::new(1.0, 0.0, -1.0),
-        Vector3::new(1.0, 0.0, 0.0),
-        Vector3::new(1.0, 0.0, 1.0),
-        Vector3::new(1.0, 1.0, -1.0),
-        Vector3::new(1.0, 1.0, 0.0),
-        Vector3::new(1.0, 1.0, 1.0),
+    let images: Vec<_> = neighbors.iter().map(|n| n.image.unwrap()).collect();
+    let expected = vec![
+        [ 0.0, 0.0,  0.0],   // node 7
+        [ 0.0, 1.0,  0.0],   // node 8
+        [ 0.0, 0.0,  0.0],   // node 9
+        [-1.0, 0.0, -1.0],   // node 14
     ];
 
-    let images = cell.relevant_images(3.0);
-    assert_eq!(expected.len(), images.len());
-    assert_eq!(expected[1][2], images[1][2]);
-}
-// src:2 ends here
-
-
-
-// 最近邻镜像原子
-
-// [[file:~/Workspace/Programming/neighbors/neighbors.note::*src][src:3]]
-use std::f64;
-
-fn get_nearest_image(
-    cell: Matrix3<f64>,
-    position1: Point3<f64>,
-    position2: Point3<f64>,
-) -> (Vector3<f64>, f64) {
-    // loop 27 possible point images
-    let relevant_images = [-1, 0, 1];
-    let mut distance = f64::MAX;
-    let mut image = Vector3::from_value(0_f64);
-    for x in relevant_images.iter() {
-        for y in relevant_images.iter() {
-            for z in relevant_images.iter() {
-                let p =
-                    position2 + (*x as f64) * cell.x + (*y as f64) * cell.y + (*z as f64) * cell.z;
-                let d = position1.distance(p);
-                if d < distance {
-                    distance = d;
-                    image.x = *x as f64;
-                    image.y = *y as f64;
-                    image.z = *z as f64;
-                }
-            }
-        }
+    for (i, &image) in images.iter().enumerate() {
+        let _image = Vector3f::from(expected[i]);
+        assert_relative_eq!(image, _image);
     }
-
-    (image, distance)
 }
-
-#[test]
-fn test_get_nearest_image() {
-    use approx::*;
-
-    let mat1 = Matrix3::new(5.09, 0.00, 0.00, 0.00, 6.74, 0.00, 0.00, 0.00, 4.53);
-
-    let p1 = Point3::new(0.18324000, 1.68500000, 3.85050000);
-    let p13 = Point3::new(4.53010000, 1.68500000, 2.03850000);
-    let p10 = Point3::new(0.94674000, 2.94538000, 1.48584000);
-    let dp1_13 = 1.95847;
-    let dp1_10 = 2.61920;
-
-    let (image, d) = get_nearest_image(mat1, p1, p13);
-    assert_relative_eq!(d, dp1_13, epsilon = 1e-4);
-    assert_relative_eq!(image.x, -1.0, epsilon = 1e-4);
-    assert_relative_eq!(image.y, 0.0, epsilon = 1e-4);
-    assert_relative_eq!(image.z, 0.0, epsilon = 1e-4);
-
-    let (image, d) = get_nearest_image(mat1, p1, p10);
-    assert_relative_eq!(d, dp1_10, epsilon = 1e-4);
-}
-// src:3 ends here
-
-// [[file:~/Workspace/Programming/neighbors/neighbors.note::*src][src:4]]
-fn cell_vectors_to_parameters(matrix: Matrix3<f64>) -> (f64, f64, f64, f64, f64, f64) {
-    let a = matrix.x.magnitude();
-    let b = matrix.y.magnitude();
-    let c = matrix.z.magnitude();
-
-    let alpha: Deg<_> = matrix.y.angle(matrix.z).into();
-    let beta: Deg<_> = matrix.x.angle(matrix.z).into();
-    let gamma: Deg<_> = matrix.x.angle(matrix.y).into();
-
-    (a, b, c, alpha.0, beta.0, gamma.0)
-}
-// src:4 ends here
-
-// [[file:~/Workspace/Programming/neighbors/neighbors.note::*src][src:5]]
-#[test]
-fn test_cell2() {
-    use approx::*;
-
-    // ovito/tests/files/LAMMPS/multi_sequence_1.dump
-    let mat1 = Matrix3::new(5.09, 0.00, 0.00, 0.00, 6.74, 0.00, 0.00, 0.00, 4.53);
-
-    let v1 = Vector3::new(2.1832, 1.6850, 3.8505);
-    let v2 = Vector3::new(6.9068, 5.0550, 0.6795);
-    let v3 = Vector3::new(4.3618, 5.0550, 1.5855);
-
-    let fracs = cart_to_frac(mat1, vec![v1, v2, v3]);
-    assert_relative_eq!(fracs[0].x, 0.4289, epsilon = 1e-3);
-    assert_relative_eq!(fracs[0].y, 0.2500, epsilon = 1e-3);
-    assert_relative_eq!(fracs[0].z, 0.8500, epsilon = 1e-3);
-    assert_relative_eq!(fracs[1].x, 1.3569, epsilon = 1e-3);
-    assert_relative_eq!(fracs[2].z, 0.3500, epsilon = 1e-3);
-
-    let mat2 = Matrix3::new(15.3643, 0.0, 0.0, 4.5807, 15.5026, 0.0, 0.0, 0.0, 17.4858);
-
-    let (a, b, c, alpha, beta, gamma) = cell_vectors_to_parameters(mat2);
-    assert_relative_eq!(a, 15.3643, epsilon = 1e-4);
-    assert_relative_eq!(b, 16.1652, epsilon = 1e-4);
-    assert_relative_eq!(c, 17.4858, epsilon = 1e-4);
-
-    assert_relative_eq!(alpha, 90.0, epsilon = 1e-4);
-    assert_relative_eq!(beta, 90.0, epsilon = 1e-4);
-    assert_relative_eq!(gamma, 73.5386, epsilon = 1e-4);
-}
-// src:5 ends here
+// test:1 ends here

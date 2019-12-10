@@ -1,103 +1,59 @@
 // import
 
 // [[file:~/Workspace/Programming/gchemol-rs/neighbors/neighbors.note::*import][import:1]]
-
+#[cfg(test)]
+#[macro_use]
+extern crate approx;
 // import:1 ends here
 
 // mods
 
 // [[file:~/Workspace/Programming/gchemol-rs/neighbors/neighbors.note::*mods][mods:1]]
-mod neighborhood;
+mod aperiodic;
+mod periodic;
 // mods:1 ends here
 
-// adhoc
+// base
 
-// [[file:~/Workspace/Programming/gchemol-rs/neighbors/neighbors.note::*adhoc][adhoc:1]]
-use cgmath::prelude::*;
-use cgmath::{Matrix, Vector3};
-use octree::Octree;
-use std::collections::HashMap;
+// [[file:~/Workspace/Programming/gchemol-rs/neighbors/neighbors.note::*base][base:1]]
+mod base {
+    use gchemol_lattice::Lattice;
+    use indexmap::IndexMap;
+    use vecfx::Vector3f;
+    use octree::Octree;
 
-type Point = [f64; 3];
-type Points = Vec<Point>;
+    pub type Point = [f64; 3];
 
-mod neighbors;
-mod periodic;
+    /// Helper struct for neighbors search result.
+    #[derive(Debug, Clone)]
+    pub struct Neighbor {
+        /// The node connected to the host point.
+        pub node: usize,
+        /// The distance to the host point.
+        pub distance: f64,
+        /// Scaled displacment vector relative to origin cell if PBC enabled.
+        pub image: Option<Vector3f>,
+    }
 
-#[derive(Clone, Debug, Default)]
-pub struct Neighbor {
-    /// Particle index in particle list
-    pub index: usize,
+    /// Neighborhood is a neighboring nodes detector, for given cutoff distance.
+    #[derive(Debug, Clone, Default)]
+    pub struct Neighborhood {
+        /// particle coordinates
+        pub(crate) points: IndexMap<usize, Point>,
 
-    /// The periodic image that hosting the this neighbor particle
-    pub image: Option<Vector3<f64>>,
+        /// Octree object
+        pub(crate) tree: Option<Octree>,
 
-    /// The distance to the neighboring particle
-    pub distance: f64,
-}
-
-impl Neighbor {
-    pub fn new() -> Self {
-        Neighbor::default()
+        /// Periodic lattice.
+        pub(crate) lattice: Option<Lattice>,
     }
 }
+// base:1 ends here
 
-pub use crate::periodic::UnitCell;
+// pub
 
-pub struct Neighborhood<'a> {
-    pub cell: Option<UnitCell>,
-
-    particles: &'a Points,
-    tree: Octree,
-    kneighbors: HashMap<usize, Vec<(usize, f64, Vector3<f64>)>>,
-}
-
-use crate::neighbors::{neighbors_for_aperiodic, neighbors_for_periodic};
-
-impl<'a> Neighborhood<'a> {
-    /// Construct neighborhood structure from points in 3D space
-    pub fn new(particles: &'a Points) -> Self {
-        Neighborhood {
-            particles: particles,
-            tree: Octree::new(&particles),
-            cell: None,
-            kneighbors: HashMap::new(),
-        }
-    }
-
-    /// Set unit cell, applying periodic boundary conditions
-    pub fn set_cell(&mut self, cell: UnitCell) {
-        self.cell = Some(cell);
-    }
-
-    /// Build the neighbor list
-    pub fn build(&mut self, cutoff: f64) -> Result<(), &'static str> {
-        if self.cell.is_some() {
-            self.kneighbors = neighbors_for_periodic(self.particles, self.cell.unwrap(), cutoff);
-        } else {
-            self.kneighbors = neighbors_for_aperiodic(self.particles, cutoff);
-        }
-
-        Ok(())
-    }
-
-    /// Return neighbors of particle i.
-    pub fn neighbors(&self, i: usize) -> Result<Vec<Neighbor>, &'static str> {
-        let kns = self
-            .kneighbors
-            .get(&i)
-            .ok_or("particle index out of bound")?;
-
-        let mut ns = vec![];
-        for &(index, distance, image) in kns.iter() {
-            let mut neighbor = Neighbor::new();
-            neighbor.index = index;
-            neighbor.distance = distance;
-            neighbor.image = Some(image);
-            ns.push(neighbor);
-        }
-
-        Ok(ns)
-    }
-}
-// adhoc:1 ends here
+// [[file:~/Workspace/Programming/gchemol-rs/neighbors/neighbors.note::*pub][pub:1]]
+// pub use crate::aperiodic::*;
+pub use crate::base::*;
+// pub use crate::periodic::*;
+// pub:1 ends here

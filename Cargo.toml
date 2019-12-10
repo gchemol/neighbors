@@ -8,12 +8,13 @@ authors = ["Wenping Guo <ybyygu@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-cgmath = "*"
+indexmap = { version = "1" }
 #octree = { git = "https://github.com/ybyygu/rust-octree.git" }
 octree = { path = "../octree" }
 vecfx = { path = "../vecfx", features = ["nalgebra"] }
+gchemol_lattice = { path = "../lattice" }
 guts = { git = "https://github.com/ybyygu/guts.git" }
-indexmap = { version = "1" }
+cgmath = "*"
 
 [dev-dependencies]
 timeit = "*"

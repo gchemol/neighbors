@@ -1,34 +1,8 @@
 // imports
 
 // [[file:~/Workspace/Programming/gchemol-rs/neighbors/neighbors.note::*imports][imports:1]]
-use guts::prelude::*;
-use indexmap::IndexMap;
-use vecfx::Vector3f;
+use crate::base::*;
 // imports:1 ends here
-
-// base
-
-// [[file:~/Workspace/Programming/gchemol-rs/neighbors/neighbors.note::*base][base:1]]
-type Point = [f64; 3];
-
-/// Helper struct for neighbors query result.
-#[derive(Debug, Clone)]
-pub struct Neighbor {
-    /// The node connected to the host point.
-    pub node: usize,
-    /// The distance to the host point.
-    pub distance: f64,
-    /// Scaled displacment vector relative to origin cell if PBC enabled.
-    pub image: Option<Vector3f>,
-}
-
-/// Neighborhood is a neighboring nodes detector, given a cutoff distance.
-#[derive(Debug, Clone)]
-pub struct Neighborhood {
-    points: IndexMap<usize, Point>,
-    tree: Option<Octree>,
-}
-// base:1 ends here
 
 // core
 
@@ -39,8 +13,7 @@ impl Neighborhood {
     /// Constructs a neighborhood detector using the given `cutoff` distance.
     pub fn new() -> Self {
         Self {
-            points: IndexMap::new(),
-            tree: None,
+            ..Default::default()
         }
     }
 
@@ -71,27 +44,33 @@ impl Neighborhood {
         // the index of host node `n` in point list.
         let (n_index, _, pt) = self.points.get_full(n).expect("invalid key");
 
-        self.tree
-            .as_ref()
-            .expect("octree not ready")
-            .search(*pt, radius)
-            .into_iter()
-            .filter_map(|(index, distance)| {
-                // excluding this node `n` from neighbor list.
-                if index == n_index {
-                    None
-                } else {
-                    let (&node, _) = self.points.get_index(index).expect("invalid index");
-                    let neighbor = Neighbor {
-                        node,
-                        distance,
-                        image: None,
-                    };
+        if let Some(lattice) = self.lattice {
+            // FIXME: remove clone, remove mut
+            let lattice = lattice.clone();
+            self.neighbors_periodic(n, radius, lattice)
+        } else {
+            self.tree
+                .as_ref()
+                .expect("octree not ready")
+                .search(*pt, radius)
+                .into_iter()
+                .filter_map(|(index, distance)| {
+                    // excluding this node `n` from neighbor list.
+                    if index == n_index {
+                        None
+                    } else {
+                        let (&node, _) = self.points.get_index(index).expect("invalid index");
+                        let neighbor = Neighbor {
+                            node,
+                            distance,
+                            image: None,
+                        };
 
-                    Some(neighbor)
-                }
-            })
-            .collect()
+                        Some(neighbor)
+                    }
+                })
+                .collect()
+        }
     }
 }
 // core:1 ends here
