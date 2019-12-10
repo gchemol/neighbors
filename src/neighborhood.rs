@@ -6,9 +6,9 @@ use indexmap::IndexMap;
 use vecfx::Vector3f;
 // imports:1 ends here
 
-// pub
+// base
 
-// [[file:~/Workspace/Programming/gchemol-rs/neighbors/neighbors.note::*pub][pub:1]]
+// [[file:~/Workspace/Programming/gchemol-rs/neighbors/neighbors.note::*base][base:1]]
 type Point = [f64; 3];
 
 /// Helper struct for neighbors query result.
@@ -28,7 +28,7 @@ pub struct Neighborhood {
     points: IndexMap<usize, Point>,
     tree: Option<Octree>,
 }
-// pub:1 ends here
+// base:1 ends here
 
 // core
 
@@ -51,7 +51,8 @@ impl Neighborhood {
     /// - points: A list of 3D point to build Neighborhood for.
     pub fn update(&mut self, points: &[Point]) {
         for (i, &p) in points.iter().enumerate() {
-            self.points.insert(i, p);
+            // counts from 1
+            self.points.insert(i + 1, p);
         }
         let points: Vec<_> = self.points.values().cloned().collect();
         let mut tree = Octree::new(&points);
@@ -393,11 +394,11 @@ fn test_neighbors() {
 
     let mut nh = Neighborhood::new();
     nh.update(&points);
-    let nns = nh.neighbors(&0, 1.7);
+    let nns = nh.neighbors(&1, 1.7);
     dbg!(nns);
-
-    // let ns = nh.neighbors(0).unwrap();
-    // assert_eq!(1, ns.len());
-    // assert_eq!(52, ns[0].index);
+    let nns = nh.neighbors(&2, 1.7);
+    dbg!(nns);
+    let nns = nh.neighbors(&3, 2.7);
+    dbg!(nns);
 }
 // tests:1 ends here
