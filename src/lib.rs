@@ -4,6 +4,10 @@
 #[cfg(test)]
 #[macro_use]
 extern crate approx;
+
+#[cfg(test)]
+#[macro_use]
+extern crate timeit;
 // import:1 ends here
 
 // mods
