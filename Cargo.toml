@@ -1,6 +1,6 @@
-# cargo
+# local
 
-# [[file:~/Workspace/Programming/gchemol-rs/neighbors/neighbors.note::*cargo][cargo:1]]
+# [[file:~/Workspace/Programming/gchemol-rs/neighbors/neighbors.note::*local][local:1]]
 [package]
 name = "neighbors"
 version = "0.0.3"
@@ -9,14 +9,16 @@ edition = "2018"
 
 [dependencies]
 indexmap = { version = "1" }
-#octree = { git = "https://github.com/ybyygu/rust-octree.git" }
-octree = { path = "../octree" }
-vecfx = { path = "../vecfx", features = ["nalgebra"] }
-gchemol_lattice = { path = "../lattice" }
+# octree = { path = "../octree" }
+# vecfx = { path = "../vecfx", features = ["nalgebra"] }
+# gchemol_lattice = { path = "../lattice" }
+# guts = { path = "../../guts" }
+octree = { git = "https://github.com/ybyygu/rust-octree.git", branch = "dev" }
+vecfx = { git = "https://github.com/gchemol/vecfx.git", features = ["nalgebra"] }
+gchemol_lattice = { git = "https://github.com/gchemol/lattice.git", tag = "v0.0.1" }
 guts = { git = "https://github.com/ybyygu/guts.git" }
-cgmath = "*"
 
 [dev-dependencies]
 timeit = "*"
 approx = "*"
-# cargo:1 ends here
+# local:1 ends here
