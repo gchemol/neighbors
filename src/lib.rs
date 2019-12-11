@@ -29,7 +29,7 @@ mod base {
     pub type Point = [f64; 3];
 
     /// Helper struct for neighbors search result.
-    #[derive(Debug, Clone)]
+    #[derive(Debug, Clone, Copy)]
     pub struct Neighbor {
         /// The node connected to the host point.
         pub node: usize,
