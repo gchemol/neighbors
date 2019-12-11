@@ -9,7 +9,7 @@ use crate::base::*;
 // [[file:~/Workspace/Programming/gchemol-rs/neighbors/neighbors.note::*core][core:1]]
 use octree::Octree;
 
-impl Neighborhood {
+impl<'a> Neighborhood<'a> {
     /// Constructs a neighborhood detector using the given `cutoff` distance.
     pub fn new() -> Self {
         Self {
@@ -22,12 +22,12 @@ impl Neighborhood {
     /// Parameters
     /// ----------
     /// - points: A list of 3D point to build Neighborhood for.
-    pub fn update(&mut self, points: &[Point]) {
+    pub fn update(&mut self, points: &'a [Point]) {
         for (i, &p) in points.iter().enumerate() {
             // counts from 1
             self.points.insert(i + 1, p);
         }
-        let points: Vec<_> = self.points.values().cloned().collect();
+        // let points: Vec<_> = self.points.values().cloned().collect();
         let mut tree = Octree::new(&points);
         let bucket_size = 10;
         tree.build(bucket_size);

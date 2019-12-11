@@ -41,12 +41,12 @@ mod base {
 
     /// Neighborhood is a neighboring nodes detector, for given cutoff distance.
     #[derive(Debug, Clone, Default)]
-    pub struct Neighborhood {
+    pub struct Neighborhood<'a> {
         /// particle coordinates
         pub(crate) points: IndexMap<usize, Point>,
 
         /// Octree object
-        pub(crate) tree: Option<Octree>,
+        pub(crate) tree: Option<Octree<'a>>,
 
         /// Periodic lattice.
         pub(crate) lattice: Option<Lattice>,

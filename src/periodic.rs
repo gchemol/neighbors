@@ -9,7 +9,7 @@ use crate::base::*;
 // pub
 
 // [[file:~/Workspace/Programming/gchemol-rs/neighbors/neighbors.note::*pub][pub:1]]
-impl Neighborhood {
+impl<'a> Neighborhood<'a> {
     /// Set lattice for applying periodic boundary conditions
     pub fn set_lattice(&mut self, mat: [[f64; 3]; 3]) {
         let lat = Lattice::new(mat);
