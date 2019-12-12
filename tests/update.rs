@@ -40,24 +40,24 @@ fn test_neighbors() {
     nh.update(positions.into_iter().enumerate().map(|(i, v)| (i + 1, v)));
     assert_eq!(nh.npoints(), 26);
 
-    let nns = nh.neighbors(&8, 1.5);
-    assert_eq!(nns.len(), 2);
-    let nns = nh.neighbors(&8, 1.6);
-    assert_eq!(nns.len(), 4);
+    let n = nh.neighbors(8, 1.5).count();
+    assert_eq!(n, 2);
+    let n = nh.neighbors(8, 1.6).count();
+    assert_eq!(n, 4);
 
     // move point 9 to a new location: distance(8--9) = 2.05
     let p9 = [0.4858028, -1.9478115, -1.2681672];
     let new_positions = vec![(9, p9)];
     nh.update(new_positions);
-    let nns = nh.neighbors(&8, 1.5);
-    assert_eq!(nns.len(), 1);
-    let nns = nh.neighbors(&8, 1.6);
-    assert_eq!(nns.len(), 3);
+    let n = nh.neighbors(8, 1.5).count();
+    assert_eq!(n, 1);
+    let n = nh.neighbors(8, 1.6).count();
+    assert_eq!(n, 3);
 
     // search neighboring points near a location
-    let nns = nh.search(p9, 2.0);
-    assert_eq!(nns.len(), 1);     // point 9
-    let nns = nh.search(p9, 2.2);
-    assert_eq!(nns.len(), 2);     // point 9 + 8
+    let n = nh.search(p9, 2.0).count();
+    assert_eq!(n, 1);     // point 9
+    let n = nh.search(p9, 2.2).count();
+    assert_eq!(n, 2);     // point 9 + 8
 }
 // update.rs:1 ends here

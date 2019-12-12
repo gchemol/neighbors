@@ -37,7 +37,7 @@ fn test_periodic_neighbors() {
     nh.update(particles.iter().enumerate().map(|(i, &v)| (i + 1, v)));
     nh.set_lattice(cell);
     let cutoff = 1.8;
-    let mut neighbors = nh.neighbors(&1, cutoff);
+    let mut neighbors: Vec<_> = nh.neighbors(1, cutoff).collect();
     // sort by node index
     neighbors.sort_by_key(|n| n.node);
     assert_eq!(4, neighbors.len());

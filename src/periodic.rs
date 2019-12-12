@@ -16,40 +16,74 @@ impl Neighborhood {
         self.lattice = Some(lat);
     }
 
+    // /// Search neighbors for periodic system.
+    // pub(crate) fn search_neighbors_periodic(
+    //     &self,
+    //     pt: Point,
+    //     cutoff: f64,
+    //     mut lattice: Lattice,
+    // ) -> Vec<Neighbor> {
+    //     let tree = self.tree.as_ref().expect("octree not ready.");
+    //     let images = lattice.relevant_images(cutoff);
+
+    //     // to avoid octree building for each image we mirror the query points
+    //     // and then mirror back
+    //     let [x0, y0, z0] = pt;
+    //     let pt_images = images.into_iter().map(|image| {
+    //         let [dx, dy, dz] = lattice.to_cart([image[0], image[1], image[2]]);
+    //         let new_pt = [x0 + dx, y0 + dy, z0 + dz];
+    //         (new_pt, -image)
+    //     });
+
+    //     // run queries over all relevant images
+    //     pt_images
+    //         .flat_map(|(pt, image)| {
+    //             tree.search(pt, cutoff)
+    //                 .into_iter()
+    //                 .map(move |(index, distance)| {
+    //                     let (&node, _) = self.points.get_index(index).expect("invalid index");
+    //                     Neighbor {
+    //                         node,
+    //                         distance,
+    //                         image: Some(image),
+    //                     }
+    //                 })
+    //         })
+    //         .collect()
+    // }
+
     /// Search neighbors for periodic system.
     pub(crate) fn search_neighbors_periodic(
         &self,
         pt: Point,
         cutoff: f64,
         mut lattice: Lattice,
-    ) -> Vec<Neighbor> {
+    ) -> impl Iterator<Item = Neighbor> + '_ {
         let tree = self.tree.as_ref().expect("octree not ready.");
         let images = lattice.relevant_images(cutoff);
 
         // to avoid octree building for each image we mirror the query points
         // and then mirror back
         let [x0, y0, z0] = pt;
-        let pt_images = images.into_iter().map(|image| {
+        let pt_images = images.into_iter().map(move |image| {
             let [dx, dy, dz] = lattice.to_cart([image[0], image[1], image[2]]);
             let new_pt = [x0 + dx, y0 + dy, z0 + dz];
             (new_pt, -image)
         });
 
         // run queries over all relevant images
-        pt_images
-            .flat_map(|(pt, image)| {
-                tree.search(pt, cutoff)
-                    .into_iter()
-                    .map(move |(index, distance)| {
-                        let (&node, _) = self.points.get_index(index).expect("invalid index");
-                        Neighbor {
-                            node,
-                            distance,
-                            image: Some(image),
-                        }
-                    })
-            })
-            .collect()
+        pt_images.flat_map(move |(pt, image)| {
+            tree.search(pt, cutoff)
+                .into_iter()
+                .map(move |(index, distance)| {
+                    let (&node, _) = self.points.get_index(index).expect("invalid index");
+                    Neighbor {
+                        node,
+                        distance,
+                        image: Some(image),
+                    }
+                })
+        })
     }
 }
 // pub:1 ends here

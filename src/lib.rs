@@ -93,31 +93,40 @@ mod api {
         /// ----------
         /// - n: the key of host node for searching neighbors
         /// - radius: cutoff radius distance
-        pub fn neighbors(&self, n: &usize, radius: f64) -> Vec<Neighbor> {
+        pub fn neighbors(&self, n: usize, radius: f64) -> impl Iterator<Item = Neighbor> + '_ {
             // the index of host node `n` in point list.
-            let (_, _, &pt) = self.points.get_full(n).expect("invalid key");
-            let neighbors = self.search(pt, radius);
+            let (_, _, &pt) = self.points.get_full(&n).expect("invalid key");
+
             // excluding self from the list
-            neighbors
-                .into_iter()
-                .filter_map(|m| {
-                    if m.node == *n && m.distance == 0.0 {
-                        return None;
-                    }
-                    Some(m)
-                })
-                .collect()
+            self.search(pt, radius).filter_map(move |m| {
+                if m.node == n && m.distance == 0.0 {
+                    return None;
+                }
+                Some(m)
+            })
         }
 
         /// Return neighbors of a particle `pt` within distance cutoff `radius`.
-        pub fn search(&self, pt: Point, radius: f64) -> Vec<Neighbor> {
-            if let Some(lattice) = self.lattice {
-                // FIXME: remove clone, remove mut
-                let lattice = lattice.clone();
-                self.search_neighbors_periodic(pt, radius, lattice)
-            } else {
-                self.search_neighbors_aperiodic(pt, radius)
+        pub fn search(&self, pt: Point, radius: f64) -> impl Iterator<Item = Neighbor> + '_ {
+            // inspired by: https://stackoverflow.com/a/54728634
+            let mut iter_periodic = None;
+            let mut iter_aperiodic = None;
+            match self.lattice {
+                Some(lattice) => {
+                    // FIXME: remove clone, remove mut
+                    let lattice = lattice.clone();
+                    let iter = self.search_neighbors_periodic(pt, radius, lattice);
+                    iter_periodic = Some(iter);
+                }
+                None => {
+                    let iter = self.search_neighbors_aperiodic(pt, radius);
+                    iter_aperiodic = Some(iter);
+                }
             }
+            iter_periodic
+                .into_iter()
+                .flatten()
+                .chain(iter_aperiodic.into_iter().flatten())
         }
 
         /// Return current number of points.
