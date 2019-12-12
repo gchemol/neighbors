@@ -8,28 +8,18 @@ use crate::base::*;
 
 // [[file:~/Workspace/Programming/gchemol-rs/neighbors/neighbors.note::*core][core:1]]
 impl Neighborhood {
-    pub(crate) fn neighbors_aperiodic(&self, n: &usize, radius: f64) -> Vec<Neighbor> {
-        // the index of host node `n` in point list.
-        let (n_index, _, pt) = self.points.get_full(n).expect("invalid key");
-
+    pub(crate) fn search_neighbors_aperiodic(&self, pt: Point, radius: f64) -> Vec<Neighbor> {
         self.tree
             .as_ref()
             .expect("octree not ready")
-            .search(*pt, radius)
+            .search(pt, radius)
             .into_iter()
-            .filter_map(|(index, distance)| {
-                // excluding this node `n` from neighbor list.
-                if index == n_index {
-                    None
-                } else {
-                    let (&node, _) = self.points.get_index(index).expect("invalid index");
-                    let neighbor = Neighbor {
-                        node,
-                        distance,
-                        image: None,
-                    };
-
-                    Some(neighbor)
+            .map(|(index, distance)| {
+                let (&node, _) = self.points.get_index(index).expect("invalid index");
+                Neighbor {
+                    node,
+                    distance,
+                    image: None,
                 }
             })
             .collect()

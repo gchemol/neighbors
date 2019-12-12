@@ -75,7 +75,11 @@ mod api {
         where
             I: IntoIterator<Item = (usize, Point)>,
         {
-            self.points = iter.into_iter().collect();
+            // update data points
+            for (k, v) in iter {
+                self.points.insert(k, v);
+            }
+            // FIXME: how to reduce octree building
             let points: Vec<_> = self.points.values().copied().collect();
             let mut tree = Octree::new(points);
             let bucket_size = 10;
@@ -83,20 +87,42 @@ mod api {
             self.tree = Some(tree);
         }
 
-        /// Return a list of the nodes connected to the node n.
+        /// Return a list of the nodes connected to the node `n`.
         ///
         /// Parameters
         /// ----------
         /// - n: the key of host node for searching neighbors
         /// - radius: cutoff radius distance
         pub fn neighbors(&self, n: &usize, radius: f64) -> Vec<Neighbor> {
+            // the index of host node `n` in point list.
+            let (_, _, &pt) = self.points.get_full(n).expect("invalid key");
+            let neighbors = self.search(pt, radius);
+            // excluding self from the list
+            neighbors
+                .into_iter()
+                .filter_map(|m| {
+                    if m.node == *n && m.distance == 0.0 {
+                        return None;
+                    }
+                    Some(m)
+                })
+                .collect()
+        }
+
+        /// Return neighbors of a particle `pt` within distance cutoff `radius`.
+        pub fn search(&self, pt: Point, radius: f64) -> Vec<Neighbor> {
             if let Some(lattice) = self.lattice {
                 // FIXME: remove clone, remove mut
                 let lattice = lattice.clone();
-                self.neighbors_periodic(n, radius, lattice)
+                self.search_neighbors_periodic(pt, radius, lattice)
             } else {
-                self.neighbors_aperiodic(n, radius)
+                self.search_neighbors_aperiodic(pt, radius)
             }
+        }
+
+        /// Return current number of points.
+        pub fn npoints(&self) -> usize {
+            self.points.len()
         }
     }
 }
