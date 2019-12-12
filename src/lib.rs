@@ -82,7 +82,7 @@ mod api {
             // FIXME: how to reduce octree building
             let points: Vec<_> = self.points.values().copied().collect();
             let mut tree = Octree::new(points);
-            let bucket_size = 10;
+            let bucket_size = 100;
             tree.build(bucket_size);
             self.tree = Some(tree);
         }
