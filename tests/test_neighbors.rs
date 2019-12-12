@@ -300,14 +300,15 @@ fn test_neighbors() {
     ];
 
     let mut nh = Neighborhood::new();
-    nh.update(&points);
+    // particle labels counting from 1
+    nh.update(points.into_iter().enumerate().map(|(i, v)| (i + 1, v)));
 
-    // aperiodic
+    // aperiodic system
     let ns = nh.neighbors(&1, 1.7);
     assert_eq!(1, ns.len());
     assert_eq!(53, ns[0].node);
 
-    // periodic
+    // periodic system
     let cell = [[18.256, 0., 0.], [0., 20.534, 0.], [0., 0., 15.084]];
     nh.set_lattice(cell);
     let mut ns = nh.neighbors(&1, 1.7);

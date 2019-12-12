@@ -9,7 +9,7 @@ use crate::base::*;
 // pub
 
 // [[file:~/Workspace/Programming/gchemol-rs/neighbors/neighbors.note::*pub][pub:1]]
-impl<'a> Neighborhood<'a> {
+impl Neighborhood {
     /// Set lattice for applying periodic boundary conditions
     pub fn set_lattice(&mut self, mat: [[f64; 3]; 3]) {
         let lat = Lattice::new(mat);
@@ -24,7 +24,7 @@ impl<'a> Neighborhood<'a> {
         mut lattice: Lattice,
     ) -> Vec<Neighbor> {
         // the index of host node `n` in point list.
-        let (n_index, _, pt) = self.points.get_full(n).expect("invalid key");
+        let (_, _, pt) = self.points.get_full(n).expect("invalid key");
 
         let tree = self.tree.as_ref().expect("octree not ready.");
         let images = lattice.relevant_images(cutoff);
@@ -92,7 +92,7 @@ fn test_periodic_neighbors() {
                 [ 8.64636107e-04,  4.95399992e+00,  0.00000000e+00],
                 [-3.14318359e+00,  1.38078488e-02,  6.91625732e+00]];
     let mut nh = Neighborhood::new();
-    nh.update(&particles);
+    nh.update(particles.iter().enumerate().map(|(i, &v)| (i + 1, v)));
     nh.set_lattice(cell);
     let cutoff = 1.8;
     let mut neighbors = nh.neighbors(&1, cutoff);
@@ -104,10 +104,10 @@ fn test_periodic_neighbors() {
 
     let images: Vec<_> = neighbors.iter().map(|n| n.image.unwrap()).collect();
     let expected = vec![
-        [ 0.0, 0.0,  0.0],   // node 7
-        [ 0.0, 1.0,  0.0],   // node 8
-        [ 0.0, 0.0,  0.0],   // node 9
-        [-1.0, 0.0, -1.0],   // node 14
+        [0.0, 0.0, 0.0],   // node 7
+        [0.0, 1.0, 0.0],   // node 8
+        [0.0, 0.0, 0.0],   // node 9
+        [-1.0, 0.0, -1.0], // node 14
     ];
 
     for (i, &image) in images.iter().enumerate() {

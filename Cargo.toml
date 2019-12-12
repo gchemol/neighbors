@@ -3,20 +3,20 @@
 # [[file:~/Workspace/Programming/gchemol-rs/neighbors/neighbors.note::*local][local:1]]
 [package]
 name = "neighbors"
-version = "0.0.3"
+version = "0.0.4"
 authors = ["Wenping Guo <ybyygu@gmail.com>"]
 edition = "2018"
 
 [dependencies]
 indexmap = { version = "1" }
-# octree = { path = "../octree" }
-# vecfx = { path = "../vecfx", features = ["nalgebra"] }
-# gchemol_lattice = { path = "../lattice" }
-# guts = { path = "../../guts" }
-octree = { git = "https://github.com/ybyygu/rust-octree.git", tag = "v0.0.5" }
-vecfx = { git = "https://github.com/gchemol/vecfx.git", features = ["nalgebra"] }
-gchemol_lattice = { git = "https://github.com/gchemol/lattice.git", tag = "v0.0.1" }
-guts = { git = "https://github.com/ybyygu/guts.git" }
+octree = { path = "../octree" }
+vecfx = { path = "../vecfx", features = ["nalgebra"] }
+gchemol_lattice = { path = "../lattice" }
+guts = { path = "../../guts" }
+# octree = { git = "https://github.com/ybyygu/rust-octree.git", tag = "v0.0.5" }
+# vecfx = { git = "https://github.com/gchemol/vecfx.git", features = ["nalgebra"] }
+# gchemol_lattice = { git = "https://github.com/gchemol/lattice.git", tag = "v0.0.1" }
+# guts = { git = "https://github.com/ybyygu/guts.git" }
 
 [dev-dependencies]
 timeit = "*"
