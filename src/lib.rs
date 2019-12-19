@@ -113,8 +113,6 @@ mod api {
             let mut iter_aperiodic = None;
             match self.lattice {
                 Some(lattice) => {
-                    // FIXME: remove clone, remove mut
-                    let lattice = lattice.clone();
                     let iter = self.search_neighbors_periodic(pt, radius, lattice);
                     iter_periodic = Some(iter);
                 }
