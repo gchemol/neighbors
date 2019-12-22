@@ -30,16 +30,21 @@ fn setup() -> Neighborhood {
     nh
 }
 
-fn search_neighbors(nh: &Neighborhood) {
-    let cutoff = 1.8;
-    let neighbors: Vec<_> = nh.neighbors(1, cutoff).collect();
+fn search_neighbors(nh: &Neighborhood, cutoff: f64) {
+    let _neighbors: Vec<_> = nh.neighbors(1, cutoff).collect();
 }
 
 fn criterion_benchmark(c: &mut Criterion) {
-    let nh = setup();
-    c.bench_function("search_neighbors", |b| {
+    c.bench_function("search_neighbors_2", |b| {
+        let nh = setup();
         b.iter(|| {
-            search_neighbors(&nh);
+            search_neighbors(&nh, 2.0);
+        })
+    });
+    c.bench_function("search_neighbors_4", |b| {
+        let nh = setup();
+        b.iter(|| {
+            search_neighbors(&nh, 4.0);
         })
     });
 }
