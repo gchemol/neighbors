@@ -35,7 +35,6 @@ impl Neighborhood {
         // and then mirror back
         let pt: Vector3f = pt.into();
         let pt_images = lattice
-            // .replicate_images(-na..=na, -nb..=nb, -nc..=nc)
             .replicate_images(
                 cell_sizes[0][0]..=cell_sizes[0][1],
                 cell_sizes[1][0]..=cell_sizes[1][1],
