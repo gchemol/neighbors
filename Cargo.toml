@@ -21,5 +21,10 @@ guts = { path = "../../guts" }
 [dev-dependencies]
 timeit = "*"
 approx = "*"
+criterion = "*"
 gchemol = { git = "https://github.com/ybyygu/gchemol.git" }
+
+[[bench]]
+name = "my_benchmark"
+harness = false
 # local:1 ends here
