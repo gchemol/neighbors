@@ -9,17 +9,17 @@ edition = "2018"
 
 [dependencies]
 indexmap = { version = "1" }
-# octree = { path = "../octree" }
-# vecfx = { path = "../vecfx", features = ["nalgebra"] }
-# gchemol_lattice = { path = "../lattice" }
-# guts = { path = "../../guts" }
-octree = { git = "https://github.com/ybyygu/rust-octree.git" }
-vecfx = { git = "https://github.com/gchemol/vecfx.git", features = ["nalgebra"] }
-gchemol_lattice = { git = "https://github.com/gchemol/lattice.git" }
-guts = { git = "https://github.com/ybyygu/guts.git" }
+octree = { path = "../octree" }
+vecfx = { path = "../vecfx", features = ["nalgebra"] }
+gchemol_lattice = { path = "../lattice", features = ["adhoc"] }
+guts = { path = "../../guts" }
+#octree = { git = "https://github.com/ybyygu/rust-octree.git" }
+#vecfx = { git = "https://github.com/gchemol/vecfx.git", features = ["nalgebra"] }
+#gchemol_lattice = { git = "https://github.com/gchemol/lattice.git" }
+#guts = { git = "https://github.com/ybyygu/guts.git" }
 
 [dev-dependencies]
 timeit = "*"
 approx = "*"
-# gchemol = { git = "https://github.com/ybyygu/gchemol.git" }
+gchemol = { git = "https://github.com/ybyygu/gchemol.git" }
 # local:1 ends here

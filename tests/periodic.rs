@@ -40,7 +40,7 @@ fn test_periodic_neighbors() {
     let mut neighbors: Vec<_> = nh.neighbors(1, cutoff).collect();
     // sort by node index
     neighbors.sort_by_key(|n| n.node);
-    assert_eq!(4, neighbors.len());
+    assert_eq!(4, neighbors.len(), "{:?}", neighbors);
     let nodes: Vec<_> = neighbors.iter().map(|n| n.node).collect();
     assert_eq!(nodes, vec![7, 8, 9, 14]);
 
@@ -56,5 +56,32 @@ fn test_periodic_neighbors() {
         let _image = Vector3f::from(expected[i]);
         assert_relative_eq!(image, _image);
     }
+
+    let mut nh = Neighborhood::new();
+    nh.set_lattice(cell);
+    nh.update(particles.iter().enumerate().map(|(i, &v)| (i, v.into())));
+
+    let p = particles[0].into();
+    let cutoff = 1.3;
+    let neighbors = nh.search(p, cutoff);
+    assert_eq!(neighbors.count(), 1);
+
+    let p = particles[0].into();
+    let cutoff = 1.9;
+    // nodes: 6, 7, 8, 13
+    let neighbors = nh.search(p, cutoff);
+    let mut nodes: Vec<_> = neighbors.map(|n| n.node).collect();
+    nodes.sort();
+    assert_eq!(nodes, vec![0, 6, 7, 8, 13]);
+
+    let p = particles[0].into();
+    let cutoff = 4.0;
+    let neighbors = nh.search(p, cutoff);
+    let mut nodes: Vec<_> = neighbors.map(|n| n.node).collect();
+    nodes.sort();
+    assert_eq!(
+        nodes,
+        vec![0, 1, 2, 3, 3, 6, 7, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+    );
 }
 // periodic.rs:1 ends here

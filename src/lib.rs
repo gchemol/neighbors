@@ -59,6 +59,7 @@ mod base {
 // [[file:~/Workspace/Programming/gchemol-rs/neighbors/neighbors.note::*api][api:1]]
 mod api {
     use crate::base::*;
+    use gchemol_lattice::Lattice;
     use octree::Octree;
 
     impl Neighborhood {
@@ -87,6 +88,11 @@ mod api {
             self.tree = Some(tree);
         }
 
+        /// Reset internal data.
+        pub fn reset(&mut self) {
+            self.points.clear();
+        }
+
         /// Return a list of the nodes connected to the node `n`.
         ///
         /// Parameters
@@ -98,8 +104,9 @@ mod api {
             let (_, _, &pt) = self.points.get_full(&n).expect("invalid key");
 
             // excluding self from the list
+            let epsilon = 1e-6;
             self.search(pt, radius).filter_map(move |m| {
-                if m.node == n && m.distance == 0.0 {
+                if m.node == n && m.distance < epsilon {
                     return None;
                 }
                 Some(m)
@@ -130,6 +137,12 @@ mod api {
         /// Return current number of points.
         pub fn npoints(&self) -> usize {
             self.points.len()
+        }
+
+        /// Set lattice for applying periodic boundary conditions
+        pub fn set_lattice(&mut self, mat: [[f64; 3]; 3]) {
+            let lat = Lattice::new(mat);
+            self.lattice = Some(lat);
         }
     }
 }
