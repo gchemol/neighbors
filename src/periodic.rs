@@ -31,7 +31,8 @@ impl Neighborhood {
 
         // to avoid octree building for each image, we mirror the query points
         // and then mirror back
-        let pt: Vector3f = pt.into();
+        // wrap particle into central cell
+        let pt = lattice.wrap(pt);
         let pt_images = lattice
             .replicate(
                 relevant_cell_sizes[0][0]..=relevant_cell_sizes[0][1],
@@ -39,8 +40,7 @@ impl Neighborhood {
                 relevant_cell_sizes[2][0]..=relevant_cell_sizes[2][1],
             )
             .map(move |tv| {
-                let disp = lattice.to_cart(tv);
-                let new_pt = pt + disp;
+                let new_pt = pt + lattice.to_cart(tv);
                 (new_pt, -tv)
             });
 
