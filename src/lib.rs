@@ -1,13 +1,7 @@
 // import
 
 // [[file:~/Workspace/Programming/gchemol-rs/neighbors/neighbors.note::*import][import:1]]
-#[cfg(test)]
-#[macro_use]
-extern crate approx;
 
-#[cfg(test)]
-#[macro_use]
-extern crate timeit;
 // import:1 ends here
 
 // mods

@@ -32,9 +32,7 @@ fn main() {
         nh.set_lattice(cell);
         let n = particles.len();
         (0..n).into_par_iter().take(n).for_each(|i| {
-            let mut nodes: Vec<_> = nh.neighbors(i, cutoff).map(|n| n.node).collect();
-            // nodes.sort();
-            // println!("{:?}", nodes);
+            let _nodes: Vec<_> = nh.neighbors(i, cutoff).map(|n| n.node).collect();
         })
     });
 

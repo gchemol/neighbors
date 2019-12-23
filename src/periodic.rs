@@ -2,9 +2,7 @@
 
 // [[file:~/Workspace/Programming/gchemol-rs/neighbors/neighbors.note::*import][import:1]]
 use crate::base::*;
-use gchemol_lattice::Image;
 use gchemol_lattice::Lattice;
-use octree::Octree;
 use vecfx::*;
 // import:1 ends here
 
@@ -17,7 +15,7 @@ impl Neighborhood {
         &self,
         pt: Point,
         cutoff: f64,
-        mut lattice: Lattice,
+        lattice: Lattice,
     ) -> impl Iterator<Item = Neighbor> + '_ {
         // the minimum supercell size ranges
         let relevant_cell_sizes: Vec<_> = lattice
@@ -35,13 +33,12 @@ impl Neighborhood {
         // and then mirror back
         let pt: Vector3f = pt.into();
         let pt_images = lattice
-            .replicate_images(
+            .replicate(
                 relevant_cell_sizes[0][0]..=relevant_cell_sizes[0][1],
                 relevant_cell_sizes[1][0]..=relevant_cell_sizes[1][1],
                 relevant_cell_sizes[2][0]..=relevant_cell_sizes[2][1],
             )
-            .map(move |image| {
-                let tv = image.translation_vector();
+            .map(move |tv| {
                 let disp = lattice.to_cart(tv);
                 let new_pt = pt + disp;
                 (new_pt, -tv)
