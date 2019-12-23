@@ -23,7 +23,6 @@ timeit = "*"
 rayon = "1"
 approx = "*"
 criterion = "*"
-gchemol = { git = "https://github.com/ybyygu/gchemol.git" }
 
 [[bench]]
 name = "my_benchmark"
