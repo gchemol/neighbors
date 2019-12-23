@@ -8,9 +8,9 @@ use octree::Octree;
 use vecfx::*;
 // import:1 ends here
 
-// pub/algo1
+// algo1
 
-// [[file:~/Workspace/Programming/gchemol-rs/neighbors/neighbors.note::*pub/algo1][pub/algo1:1]]
+// [[file:~/Workspace/Programming/gchemol-rs/neighbors/neighbors.note::*algo1][algo1:1]]
 impl Neighborhood {
     /// Search neighbors for periodic system.
     pub(crate) fn search_neighbors_periodic(
@@ -20,7 +20,7 @@ impl Neighborhood {
         mut lattice: Lattice,
     ) -> impl Iterator<Item = Neighbor> + '_ {
         // the minimum supercell size ranges
-        let cell_sizes: Vec<_> = lattice
+        let relevant_cell_sizes: Vec<_> = lattice
             .widths()
             .iter()
             .map(|&w| {
@@ -31,14 +31,14 @@ impl Neighborhood {
             })
             .collect();
 
-        // to avoid octree building for each image we mirror the query points
+        // to avoid octree building for each image, we mirror the query points
         // and then mirror back
         let pt: Vector3f = pt.into();
         let pt_images = lattice
             .replicate_images(
-                cell_sizes[0][0]..=cell_sizes[0][1],
-                cell_sizes[1][0]..=cell_sizes[1][1],
-                cell_sizes[2][0]..=cell_sizes[2][1],
+                relevant_cell_sizes[0][0]..=relevant_cell_sizes[0][1],
+                relevant_cell_sizes[1][0]..=relevant_cell_sizes[1][1],
+                relevant_cell_sizes[2][0]..=relevant_cell_sizes[2][1],
             )
             .map(move |image| {
                 let tv = image.translation_vector();
@@ -63,7 +63,7 @@ impl Neighborhood {
         })
     }
 }
-// pub/algo1:1 ends here
+// algo1:1 ends here
 
 // triclinic
 
