@@ -15,7 +15,7 @@ mod periodic;
 
 // [[file:~/Workspace/Programming/gchemol-rs/neighbors/neighbors.note::*base][base:1]]
 mod base {
-    use gchemol_lattice::Lattice;
+    use lattice::Lattice;
     use indexmap::IndexMap;
     use octree::Octree;
     use vecfx::Vector3f;
@@ -53,7 +53,7 @@ mod base {
 // [[file:~/Workspace/Programming/gchemol-rs/neighbors/neighbors.note::*api][api:1]]
 mod api {
     use crate::base::*;
-    use gchemol_lattice::Lattice;
+    use lattice::Lattice;
     use octree::Octree;
 
     impl Neighborhood {

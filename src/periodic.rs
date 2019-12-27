@@ -2,7 +2,7 @@
 
 // [[file:~/Workspace/Programming/gchemol-rs/neighbors/neighbors.note::*import][import:1]]
 use crate::base::*;
-use gchemol_lattice::Lattice;
+use lattice::Lattice;
 use vecfx::*;
 // import:1 ends here
 
