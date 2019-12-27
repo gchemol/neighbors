@@ -11,11 +11,11 @@ edition = "2018"
 indexmap = { version = "1" }
 #octree = { path = "../octree" }
 #vecfx = { path = "../vecfx", features = ["nalgebra"] }
-#gchemol_lattice = { path = "../lattice" }
+#lattice = { path = "../lattice" }
 #guts = { path = "../../guts" }
 octree = { git = "https://github.com/ybyygu/rust-octree.git" }
 vecfx = { git = "https://github.com/gchemol/vecfx.git", features = ["nalgebra"] }
-gchemol_lattice = { git = "https://github.com/gchemol/lattice.git" }
+lattice = { git = "https://github.com/gchemol/lattice.git" }
 guts = { git = "https://github.com/ybyygu/guts.git" }
 
 [dev-dependencies]
