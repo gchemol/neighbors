@@ -4,7 +4,7 @@
 // :END:
 
 // [[file:~/Workspace/Programming/gchemol-rs/neighbors/neighbors.note::*update.rs][update.rs:1]]
-use neighbors::Neighborhood;
+use gchemol_neighbors::Neighborhood;
 
 #[test]
 fn test_neighbors() {

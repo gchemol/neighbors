@@ -1,30 +1,34 @@
-# local
+# cargo
 
-# [[file:~/Workspace/Programming/gchemol-rs/neighbors/neighbors.note::*local][local:1]]
+# [[file:~/Workspace/Programming/gchemol-rs/neighbors/neighbors.note::*cargo][cargo:1]]
 [package]
-name = "neighbors"
-version = "0.0.6"
+name = "gchemol-neighbors"
+version = "0.0.7"
 authors = ["Wenping Guo <ybyygu@gmail.com>"]
 edition = "2018"
+description = "Neighborhood search for chemistry"
+homepage = "https://github.com/gchemol/neighbors"
+repository = "https://github.com/gchemol/neighbors"
+readme = "README.md"
+license = "MIT OR Apache-2.0"
+exclude = ["bin/*", "docs/*", "ltxpng/*", ".ltximg/*"]
 
 [dependencies]
-indexmap = { version = "1" }
-#octree = { path = "../octree" }
-#vecfx = { path = "../vecfx", features = ["nalgebra"] }
-#lattice = { path = "../lattice" }
-#guts = { path = "../../guts" }
-octree = { git = "https://github.com/ybyygu/rust-octree.git" }
-vecfx = { git = "https://github.com/gchemol/vecfx.git", features = ["nalgebra"] }
-lattice = { git = "https://github.com/gchemol/lattice.git" }
-guts = { git = "https://github.com/ybyygu/guts.git" }
+indexmap = "1"
+octree = "0.0.6"
+vecfx = { version="0.0.8", features = ["nalgebra"] }
+lattice = { version="0.0.6", package="gchemol-lattice" }
 
 [dev-dependencies]
-timeit = "*"
+timeit = "0.1"
 rayon = "1"
-approx = "*"
-criterion = "*"
+approx = "0.3"
+criterion = "0.3"
 
 [[bench]]
 name = "my_benchmark"
 harness = false
-# local:1 ends here
+
+[features]
+adhoc = [] # for adhoc hacking
+# cargo:1 ends here

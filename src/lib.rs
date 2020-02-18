@@ -59,13 +59,14 @@ mod api {
     impl Neighborhood {
         /// Constructs a neighborhood detector using the given `cutoff` distance.
         pub fn new() -> Self {
-            Self {
-                ..Default::default()
-            }
+            Self { ..Default::default() }
         }
 
         /// Automatically build and update Neighborhood with contents of an
         /// iterator.
+        ///
+        /// The position of a point is associated with a permanent key in type
+        /// of `usize`.
         pub fn update<I>(&mut self, iter: I)
         where
             I: IntoIterator<Item = (usize, Point)>,
@@ -82,21 +83,25 @@ mod api {
             self.tree = Some(tree);
         }
 
+        #[cfg(feature = "adhoc")]
         /// Reset internal data.
-        pub fn reset(&mut self) {
+        pub fn clear(&mut self) {
             self.points.clear();
+            self.lattice = None;
+            self.tree = None;
         }
 
         /// Return a list of the nodes connected to the node `n`.
         ///
         /// Parameters
         /// ----------
-        /// - n: the key of host node for searching neighbors
-        /// - radius: cutoff radius distance
+        /// * n: the key of host node for searching neighbors
+        /// * radius: cutoff radius distance
         pub fn neighbors(&self, n: usize, radius: f64) -> impl Iterator<Item = Neighbor> + '_ {
             // the index of host node `n` in point list.
             let (_, _, &pt) = self.points.get_full(&n).expect("invalid key");
 
+            // FIXME: think twice
             // excluding self from the list
             let epsilon = 1e-6;
             self.search(pt, radius).filter_map(move |m| {

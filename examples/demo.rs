@@ -1,7 +1,7 @@
 #[macro_use]
 extern crate timeit;
 
-use neighbors::Neighborhood;
+use gchemol_neighbors::Neighborhood;
 use rayon::prelude::*;
 
 fn read_points_xyz(txt: &str) -> Vec<[f64; 3]> {

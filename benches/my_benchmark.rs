@@ -1,6 +1,6 @@
 use criterion::{criterion_group, criterion_main, Criterion};
 
-use neighbors::Neighborhood;
+use gchemol_neighbors::Neighborhood;
 fn setup() -> Neighborhood {
     let particles = [[ 0.60421912,  4.2840792 ,  0.67433509],
                      [-0.69258171,  3.9731936 ,  3.49208748],
