@@ -1,9 +1,7 @@
-# cargo
-
 # [[file:~/Workspace/Programming/gchemol-rs/neighbors/neighbors.note::*cargo][cargo:1]]
 [package]
 name = "gchemol-neighbors"
-version = "0.0.7"
+version = "0.1.0"
 authors = ["Wenping Guo <ybyygu@gmail.com>"]
 edition = "2018"
 description = "Neighborhood search for chemistry"
@@ -15,9 +13,9 @@ exclude = ["bin/*", "docs/*", "ltxpng/*", ".ltximg/*"]
 
 [dependencies]
 indexmap = "1"
-octree = "0.0.6"
-vecfx = { version="0.0.8", features = ["nalgebra"] }
-lattice = { version="0.0.6", package="gchemol-lattice" }
+octree = "0.1"
+vecfx = { version="0.1", features = ["nalgebra"] }
+lattice = { version="0.1", package="gchemol-lattice" }
 
 [dev-dependencies]
 timeit = "0.1"
