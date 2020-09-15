@@ -1,19 +1,13 @@
-// import
-
-// [[file:~/Workspace/Programming/gchemol-rs/neighbors/neighbors.note::*import][import:1]]
+// [[file:../neighbors.note::*import][import:1]]
 
 // import:1 ends here
 
-// mods
-
-// [[file:~/Workspace/Programming/gchemol-rs/neighbors/neighbors.note::*mods][mods:1]]
+// [[file:../neighbors.note::*mods][mods:1]]
 mod aperiodic;
 mod periodic;
 // mods:1 ends here
 
-// base
-
-// [[file:~/Workspace/Programming/gchemol-rs/neighbors/neighbors.note::*base][base:1]]
+// [[file:../neighbors.note::*base][base:1]]
 mod base {
     use lattice::Lattice;
     use indexmap::IndexMap;
@@ -27,8 +21,10 @@ mod base {
     pub struct Neighbor {
         /// The node connected to the host point.
         pub node: usize,
+
         /// The distance to the host point.
         pub distance: f64,
+
         /// Scaled displacment vector relative to origin cell if PBC enabled.
         pub image: Option<Vector3f>,
     }
@@ -48,9 +44,7 @@ mod base {
 }
 // base:1 ends here
 
-// api
-
-// [[file:~/Workspace/Programming/gchemol-rs/neighbors/neighbors.note::*api][api:1]]
+// [[file:../neighbors.note::*api][api:1]]
 mod api {
     use crate::base::*;
     use lattice::Lattice;
@@ -112,6 +106,12 @@ mod api {
             })
         }
 
+        /// Return the position of node `n`. Return None if there is no
+        /// associated point with node `n`.
+        pub fn get_position(&self, n: usize) -> Option<&Point> {
+            self.points.get(&n)
+        }
+
         /// Return neighbors of a particle `pt` within distance cutoff `radius`.
         pub fn search(&self, pt: Point, radius: f64) -> impl Iterator<Item = Neighbor> + '_ {
             // inspired by: https://stackoverflow.com/a/54728634
@@ -138,6 +138,7 @@ mod api {
             self.points.len()
         }
 
+        // FIXME: generic `mat`
         /// Set lattice for applying periodic boundary conditions
         pub fn set_lattice(&mut self, mat: [[f64; 3]; 3]) {
             let lat = Lattice::new(mat);
@@ -147,9 +148,7 @@ mod api {
 }
 // api:1 ends here
 
-// pub
-
-// [[file:~/Workspace/Programming/gchemol-rs/neighbors/neighbors.note::*pub][pub:1]]
+// [[file:../neighbors.note::*pub][pub:1]]
 pub use crate::api::*;
 pub use crate::base::*;
 // pub:1 ends here

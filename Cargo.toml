@@ -1,7 +1,7 @@
-# [[file:~/Workspace/Programming/gchemol-rs/neighbors/neighbors.note::*cargo][cargo:1]]
+# [[file:neighbors.note::*cargo][cargo:1]]
 [package]
 name = "gchemol-neighbors"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Wenping Guo <ybyygu@gmail.com>"]
 edition = "2018"
 description = "Neighborhood search for chemistry"
