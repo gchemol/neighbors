@@ -20,7 +20,6 @@ lattice = { version="0.1", package="gchemol-lattice" }
 [dev-dependencies]
 timeit = "0.1"
 rayon = "1"
-approx = "0.3"
 criterion = "0.3"
 
 [[bench]]

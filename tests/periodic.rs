@@ -1,9 +1,4 @@
-// periodic.rs
-// :PROPERTIES:
-// :header-args: :tangle tests/periodic.rs
-// :END:
-
-// [[file:~/Workspace/Programming/gchemol-rs/neighbors/neighbors.note::*periodic.rs][periodic.rs:1]]
+// [[file:../neighbors.note::*periodic.rs][periodic.rs:1]]
 use gchemol_neighbors::Neighborhood;
 
 #[test]
