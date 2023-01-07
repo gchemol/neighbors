@@ -44,7 +44,7 @@ mod base {
 }
 // base:1 ends here
 
-// [[file:../neighbors.note::*api][api:1]]
+// [[file:../neighbors.note::46a178d4][46a178d4]]
 mod api {
     use crate::base::*;
     use lattice::Lattice;
@@ -85,7 +85,7 @@ mod api {
             self.tree = None;
         }
 
-        /// Return a list of the nodes connected to the node `n`.
+        /// Return an iterator of the nodes connected to the node `n`.
         ///
         /// Parameters
         /// ----------
@@ -146,7 +146,7 @@ mod api {
         }
     }
 }
-// api:1 ends here
+// 46a178d4 ends here
 
 // [[file:../neighbors.note::*pub][pub:1]]
 pub use crate::api::*;
