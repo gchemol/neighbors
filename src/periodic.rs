@@ -1,22 +1,13 @@
-// import
-
-// [[file:~/Workspace/Programming/gchemol-rs/neighbors/neighbors.note::*import][import:1]]
+// [[file:../neighbors.note::*import][import:1]]
 use crate::base::*;
 use lattice::Lattice;
 use vecfx::*;
 // import:1 ends here
 
-// algo1
-
-// [[file:~/Workspace/Programming/gchemol-rs/neighbors/neighbors.note::*algo1][algo1:1]]
+// [[file:../neighbors.note::c17f484d][c17f484d]]
 impl Neighborhood {
     /// Search neighbors for periodic system.
-    pub(crate) fn search_neighbors_periodic(
-        &self,
-        pt: Point,
-        cutoff: f64,
-        lattice: Lattice,
-    ) -> impl Iterator<Item = Neighbor> + '_ {
+    pub(crate) fn search_neighbors_periodic(&self, pt: Point, cutoff: f64, lattice: Lattice) -> impl Iterator<Item = Neighbor> + '_ {
         // the minimum supercell size ranges
         let relevant_cell_sizes: Vec<_> = lattice
             .widths()
@@ -31,8 +22,11 @@ impl Neighborhood {
 
         // to avoid octree building for each image, we mirror the query points
         // and then mirror back
+
+        // NOTE: If we wrap `pt` into central cell, the returned image will be incorrect
         // wrap particle into central cell
-        let pt = lattice.wrap(pt);
+        // let pt = lattice.wrap(pt);
+        let pt: Vector3f = pt.into();
         let pt_images = lattice
             .replicate(
                 relevant_cell_sizes[0][0]..=relevant_cell_sizes[0][1],
@@ -47,24 +41,20 @@ impl Neighborhood {
         // run queries over all relevant images
         let tree = self.tree.as_ref().expect("octree not ready.");
         pt_images.flat_map(move |(pt, image): (Vector3f, Vector3f)| {
-            tree.search(pt.into(), cutoff)
-                .into_iter()
-                .map(move |(index, distance)| {
-                    let (&node, _) = self.points.get_index(index).expect("invalid index");
-                    Neighbor {
-                        node,
-                        distance,
-                        image: Some(image),
-                    }
-                })
+            tree.search(pt.into(), cutoff).into_iter().map(move |(index, distance)| {
+                let (&node, _) = self.points.get_index(index).expect("invalid index");
+                Neighbor {
+                    node,
+                    distance,
+                    image: Some(image),
+                }
+            })
         })
     }
 }
-// algo1:1 ends here
+// c17f484d ends here
 
-// triclinic
-
-// [[file:~/Workspace/Programming/gchemol-rs/neighbors/neighbors.note::*triclinic][triclinic:1]]
+// [[file:../neighbors.note::*triclinic][triclinic:1]]
 #[test]
 fn test_triclinic() {
     let particles = [[ 0.60421912,  4.2840792 ,  0.67433509],
@@ -142,9 +132,7 @@ fn test_triclinic() {
 }
 // triclinic:1 ends here
 
-// orthorhombic
-
-// [[file:~/Workspace/Programming/gchemol-rs/neighbors/neighbors.note::*orthorhombic][orthorhombic:1]]
+// [[file:../neighbors.note::*orthorhombic][orthorhombic:1]]
 #[test]
 fn test_orthorhombic() {
     let particles = vec![

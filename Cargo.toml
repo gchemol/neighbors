@@ -1,7 +1,7 @@
 # [[file:neighbors.note::6a47f78c][6a47f78c]]
 [package]
 name = "gchemol-neighbors"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["Wenping Guo <ybyygu@gmail.com>"]
 edition = "2021"
 description = "Neighborhood search for chemistry"

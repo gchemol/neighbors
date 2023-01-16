@@ -1,9 +1,4 @@
-// update.rs
-// :PROPERTIES:
-// :header-args: :tangle tests/update.rs
-// :END:
-
-// [[file:~/Workspace/Programming/gchemol-rs/neighbors/neighbors.note::*update.rs][update.rs:1]]
+// [[file:../neighbors.note::fd1808b2][fd1808b2]]
 use gchemol_neighbors::Neighborhood;
 
 #[test]
@@ -60,4 +55,4 @@ fn test_neighbors() {
     let n = nh.search(p9, 2.2).count();
     assert_eq!(n, 2);     // point 9 + 8
 }
-// update.rs:1 ends here
+// fd1808b2 ends here

@@ -7,10 +7,10 @@ mod aperiodic;
 mod periodic;
 // mods:1 ends here
 
-// [[file:../neighbors.note::*base][base:1]]
+// [[file:../neighbors.note::8f73ed1e][8f73ed1e]]
 mod base {
-    use lattice::Lattice;
     use indexmap::IndexMap;
+    use lattice::Lattice;
     use octree::Octree;
     use vecfx::Vector3f;
 
@@ -27,6 +27,9 @@ mod base {
 
         /// Scaled displacment vector relative to origin cell if PBC enabled.
         pub image: Option<Vector3f>,
+
+        // Cartesian position of neighboring point
+        // pub position: Point,
     }
 
     /// Neighborhood is a neighboring nodes detector, for given cutoff distance.
@@ -42,7 +45,7 @@ mod base {
         pub(crate) lattice: Option<Lattice>,
     }
 }
-// base:1 ends here
+// 8f73ed1e ends here
 
 // [[file:../neighbors.note::46a178d4][46a178d4]]
 mod api {
