@@ -8,7 +8,7 @@ description = "Neighborhood search for chemistry"
 homepage = "https://github.com/gchemol/neighbors"
 repository = "https://github.com/gchemol/neighbors"
 readme = "README.md"
-license = "MIT OR Apache-2.0"
+license = "GPL-3.0"
 exclude = ["bin/*", "docs/*", "ltxpng/*", ".ltximg/*"]
 
 [dependencies]
